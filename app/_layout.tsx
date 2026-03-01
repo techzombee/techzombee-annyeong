@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 
 import { useAuth } from '@/hooks/useAuth';
+import { initRevenueCat } from '@/lib/revenuecat';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -21,6 +22,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
+
+  useEffect(() => {
+    initRevenueCat(user?.uid);
+  }, [user]);
 
   useEffect(() => {
     if (loading || !loaded) return;
