@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { Platform, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { router } from 'expo-router';
@@ -15,7 +15,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const [, googleResponse, promptGoogleAsync] = Google.useAuthRequest({
+  const [, , promptGoogleAsync] = Google.useAuthRequest({
     clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
@@ -38,12 +38,22 @@ export default function LoginScreen() {
     setLoading(true);
     setError('');
     try {
-      const result = await promptGoogleAsync();
-      if (result?.type === 'success' && result.authentication?.idToken) {
-        const credential = GoogleAuthProvider.credential(result.authentication.idToken);
-        await signInWithCredential(auth, credential);
-        router.replace('/(tabs)');
+      if (Platform.OS === 'web') {
+        // Web: Firebase handles OAuth internally via authDomain — no redirect URI config needed
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+      } else {
+        // Mobile: use expo-auth-session
+        const result = await promptGoogleAsync();
+        if (result?.type === 'success' && result.authentication?.idToken) {
+          const credential = GoogleAuthProvider.credential(result.authentication.idToken);
+          await signInWithCredential(auth, credential);
+        } else {
+          setLoading(false);
+          return;
+        }
       }
+      router.replace('/(tabs)');
     } catch (e: any) {
       setError(e.message);
     } finally {
