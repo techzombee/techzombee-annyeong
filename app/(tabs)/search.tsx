@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, FontSize } from '@/constants/theme';
 
-export default function HomeScreen() {
+export default function SearchScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Home — video list coming soon</Text>
+      <Text style={styles.text}>Search — coming soon</Text>
     </View>
   );
 }
