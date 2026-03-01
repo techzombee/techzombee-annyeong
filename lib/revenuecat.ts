@@ -13,5 +13,5 @@ export function initRevenueCat(userId?: string) {
 
 export async function hasPremium(): Promise<boolean> {
   const info = await Purchases.getCustomerInfo();
-  return info.entitlements.active['premium'] !== undefined;
+  return info.entitlements.active['annyeong_pro'] !== undefined;
 }
