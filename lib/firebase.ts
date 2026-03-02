@@ -12,17 +12,17 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const isNew = getApps().length === 0;
+const app = isNew ? initializeApp(firebaseConfig) : getApps()[0];
 
-function createAuth() {
-  if (Platform.OS === 'web') {
-    return getAuth(app);
-  }
-  const ReactNativeAsyncStorage = require('@react-native-async-storage/async-storage').default;
+// initializeAuth must only be called once (when the app is first created).
+// On subsequent module evaluations (hot reload), use getAuth instead.
+export const auth = (() => {
+  if (!isNew || Platform.OS === 'web') return getAuth(app);
+  const AsyncStorage = require('@react-native-async-storage/async-storage').default;
   return initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+    persistence: getReactNativePersistence(AsyncStorage),
   });
-}
+})();
 
-export const auth = createAuth();
 export const db = getFirestore(app);
