@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
-  StyleSheet, SafeAreaView, Platform,
+  StyleSheet, SafeAreaView, Platform, useWindowDimensions,
 } from 'react-native';
 import YoutubePlayer, { YoutubeIframeRef } from 'react-native-youtube-iframe';
 import { useLocalSearchParams } from 'expo-router';
@@ -41,6 +41,9 @@ export default function VideoScreen() {
   const [transcript] = useState<TranscriptLine[]>(MOCK_TRANSCRIPT);
   const [currentTime, setCurrentTime] = useState(0);
   const [playing, setPlaying] = useState(false);
+
+  const { width } = useWindowDimensions();
+  const playerHeight = Math.round(width * (9 / 16));
 
   const [selectedLine, setSelectedLine] = useState<TranscriptLine | null>(null);
   const [nuance, setNuance] = useState('');
@@ -92,7 +95,8 @@ export default function VideoScreen() {
     <SafeAreaView style={styles.safe}>
       <YoutubePlayer
         ref={playerRef}
-        height={220}
+        width={width}
+        height={playerHeight}
         videoId={id}
         play={playing}
         onChangeState={(state) => setPlaying(state === 'playing')}

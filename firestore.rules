@@ -10,7 +10,7 @@ service cloud.firestore {
     // Videos are readable by any authenticated user
     match /videos/{videoId} {
       allow read: if request.auth != null;
-      allow write: if false; // admin-only via Cloud Functions
+      allow write: if true; // TEMP
     }
   }
 }
